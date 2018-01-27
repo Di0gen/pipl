@@ -1,2 +1,15 @@
 ---
 # defaults file for ppl-mysql-cluster
+dir_base_master: /opt/my_master
+dir_base_slave: /opt/my_slave
+name_master: mysql_master
+name_slave: mysql_slave 
+image: bitnami/mysql:latest
+src_port_master: 3306
+dest_port: 3306
+src_port_slave: 3307
+root_password: root123$
+my_repl_user: repl_user
+my_repl_password: repl_pass
+db_name: test_db
+

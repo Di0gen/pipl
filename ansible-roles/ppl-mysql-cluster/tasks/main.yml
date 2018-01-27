@@ -1,6 +1,6 @@
 ---
 # tasks file for ppl-mysql-cluster
-- name: Create config and logs difrectories
+- name: Create config and logs difrectories for master server
   file:
     path: "{{ item }}"
     state: directory
@@ -8,21 +8,78 @@
     group: root
     mode: 0755
   with_items:
-  - "{{ dir_base }}/logs"
-  - "{{ dir_base }}/config"
+  - "{{ dir_base_master }}/logs"
+  - "{{ dir_base_master }}/config"
+  - "{{ dir_base_master }}/tmp"
+  - "{{ dir_base_slave }}/logs"
+  - "{{ dir_base_slave }}/config"
 
+- name: Create a MySql network.
+  docker_network:
+    name: my_net
 
-- name: Start Kibana container.
+- name: Start mysql master container.
   docker_container:
-    name: "{{ name }}"
+    name: "{{ name_master }}"
     image: "{{ image }}"
     state: started
-    log_driver: syslog
-    volumes:
-    - "{{ dir_base }}/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+    #log_driver: syslog
+    networks:
+    - name: my_net
     published_ports:
-    - "{{ src_port }}:{{ dest_port}}"
-    ports:
-    - "{{ src_port }}:{{ dest_port }}"
+    - "{{ src_port_master }}:{{ dest_port}}"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ root_password }}"
+      MYSQL_REPLICATION_MODE: master
+      MYSQL_REPLICATION_USER: "{{ my_repl_user }}"
+      MYSQL_REPLICATION_PASSWORD: "{{ my_repl_password }}"
+      MYSQL_DATABASE: "{{ db_name }}"
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass123
 
+
+- name: Start mysql slave container.
+  docker_container:
+    name: "{{ name_slave }}"
+    image: "{{ image }}"
+    state: started
+    #log_driver: syslog
+    networks:
+    - name: my_net
+    published_ports:
+    - "{{ src_port_slave }}:{{ dest_port}}"
+    env:
+      MYSQL_REPLICATION_MODE: slave
+      MYSQL_REPLICATION_USER: "{{ my_repl_user }}"
+      MYSQL_REPLICATION_PASSWORD: "{{ my_repl_password }}"
+      MYSQL_MASTER_HOST: "{{ name_master }}"
+      MYSQL_MASTER_ROOT_PASSWORD: "{{ root_password }}"
+
+- name: Clone db dump from GH
+  run_once: true
+  git:
+    repo: 'https://github.com/datacharmer/test_db'
+    dest: "{{ dir_base_master }}/tmp"
+    clone: yes
+
+- name: Install required pkgs on main host
+  action: apt pkg={{item}} state=installed
+  run_once: true
+  with_items:
+    - mysql-client
+
+- name : Restore dump to test_db
+  run_once: true
+  #command: "{% raw %} docker inspect --format '{{ .NetworkSettings.IPAddress }}' {{ name_master }}  {% endraw %}"
+  command:  "docker inspect --format {% raw %}'{{ .NetworkSettings.IPAddress }}'{% endraw %} {{ name_master }}"
+  register: container_ip
+- debug:
+  msg: "IP is {{ container_ip.stdout }}"
+    #  mysql_db:
+    # login_host: "{{ container_ip.stdout }}"
+    #name: "{{ db_name }}"
+    #login_user: user
+    #login_password: pass123
+    #state: import
+    #target: "{{ dir_base_master }}/tmp/employees_partitioned.sql"
 
