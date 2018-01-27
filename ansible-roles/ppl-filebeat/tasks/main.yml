@@ -1,0 +1,34 @@
+---
+- name: Create config and logs difrectories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - /opt/filebeat/logs
+  - /opt/filebeat/config
+
+
+- name: Configure FileBeat
+  template:
+    src: filebeat.yml.j2
+    dest: /opt/filebeat/config/filebeat.yml
+    group: root
+    owner: root
+    mode: 0755
+
+- name: Start FileBeat.
+  docker_container:
+    name: filebeat
+    #image: prima/filebeat
+    log_driver: syslog
+    image: docker.elastic.co/beats/filebeat:6.1.2
+    state: started
+    user: root
+    volumes:
+    - /var/log/:/var/log/:ro
+    - /opt:/mnt/:ro
+    - /opt/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+

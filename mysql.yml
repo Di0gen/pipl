@@ -1,0 +1,5 @@
+---
+- name: Start playbook for mysql cluster installation 
+  hosts: localhost
+  roles: 
+  - ppl-mysql-cluster

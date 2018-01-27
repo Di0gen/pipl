@@ -1,0 +1,11 @@
+xpack.security.enabled: false
+xpack.monitoring.ui.container.elasticsearch.enabled: false
+xpack.reporting.enabled: false
+
+
+server.name: {{ ppl_hostname }}
+server.host: "0"
+elasticsearch.url: http://{{ ansible_default_ipv4.address }}:9200
+elasticsearch.username: elastic
+elasticsearch.password: changeme
+

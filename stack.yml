@@ -1,0 +1,10 @@
+---
+- name: Start playbook for stack installation 
+  hosts: localhost
+  roles: 
+  - geerlingguy.docker
+  - ppl-elasticsearch
+  - ppl-nginx
+  - ppl-logstash
+  - ppl-kibana
+  - ppl-filebeat

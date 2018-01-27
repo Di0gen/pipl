@@ -1,0 +1,8 @@
+---
+# defaults file for ppl-elasticsearch
+image: docker.elastic.co/elasticsearch/elasticsearch:6.1.2
+name: elastic
+src_port1: 9200
+src_port2: 9300
+dest_port1: 9200
+dest_port2: 9300

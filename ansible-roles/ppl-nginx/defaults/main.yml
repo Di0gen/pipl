@@ -1,0 +1,19 @@
+---
+# defaults file for ppl-nginx
+image: nginx
+name: nginx
+src_port: 80
+src_sport: 443
+dest_port: 80
+dest_sport: 443
+src_vol: /opt/nginx/html
+dest_vol: /var/www/html
+dir_base: /opt/nginx
+
+users:
+  admin:
+    pass: "Admin123$"
+    desc: "Admin User"
+  eugene:
+    pass: "Eu123$$"
+    desc: "Eugene's user"

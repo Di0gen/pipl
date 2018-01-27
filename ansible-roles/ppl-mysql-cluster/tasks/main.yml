@@ -1,0 +1,28 @@
+---
+# tasks file for ppl-mysql-cluster
+- name: Create config and logs difrectories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - "{{ dir_base }}/logs"
+  - "{{ dir_base }}/config"
+
+
+- name: Start Kibana container.
+  docker_container:
+    name: "{{ name }}"
+    image: "{{ image }}"
+    state: started
+    log_driver: syslog
+    volumes:
+    - "{{ dir_base }}/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+    published_ports:
+    - "{{ src_port }}:{{ dest_port}}"
+    ports:
+    - "{{ src_port }}:{{ dest_port }}"
+
+

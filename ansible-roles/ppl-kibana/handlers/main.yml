@@ -1,0 +1,6 @@
+---
+# handlers file for ppl-kibana
+#- name: restart docker
+#  docker_container: 
+#    name="{{ name }}
+#    state=restarted

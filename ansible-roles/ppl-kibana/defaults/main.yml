@@ -1,0 +1,9 @@
+---
+# defaults file for ppl-logstash
+dir_base: "/opt/kibana"
+image: docker.elastic.co/kibana/kibana:6.1.2
+name: kibana
+ppl_hostname: ppl-dshbrd.alcamena.com
+src_port: 5601
+dest_port: 5601
+

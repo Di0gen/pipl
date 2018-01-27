@@ -1,0 +1,28 @@
+---
+# tasks file for ppl-elasticsearch
+- name: Create config and logs difrectories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - /opt/elastic/logs
+  - /opt/elastic/config
+
+
+- name: Start ElasticSearch container.
+  docker_container:
+    name: "{{ name }}"
+    image: "{{ image }}"
+    log_driver: syslog
+    state: started
+    published_ports:
+    - "{{ src_port1 }}:{{ dest_port1 }}"
+    - "{{ src_port2 }}:{{ dest_port2 }}"
+    ports:
+    - "{{ src_port1 }}:{{ dest_port1 }}"
+    - "{{ src_port2 }}:{{ dest_port2 }}"
+
+

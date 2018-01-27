@@ -1,0 +1,38 @@
+---
+# tasks file for ppl-logstash
+- name: Create config and logs difrectories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - "{{ dir_base }}/logs"
+  - "{{ dir_base }}/config"
+
+
+- name: Configure LogStash
+  template:
+    src: pipeline.conf.j2
+    dest: "{{ dir_base }}/config/logstash.conf"
+    group: root
+    owner: root
+    mode: 0755
+
+- name: Start LogStash container.
+  docker_container:
+    name: "{{ name }}"
+    image: "{{ image }}"
+    log_driver: syslog
+    state: started
+    volumes:
+    - "{{ dir_base }}/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf"
+    published_ports:
+    - "{{ src_port1 }}:{{ dest_port1 }}"
+    - "{{ src_port2 }}:{{ dest_port2 }}"
+    ports:
+    - "{{ src_port1 }}:{{ dest_port1 }}"
+    - "{{ src_port2 }}:{{ dest_port2 }}"
+
+
