@@ -39,7 +39,7 @@
     state: started
     restart_policy: always
     volumes:
-    - "{{ dir_base }}/logs:/var/log/"
+    - "{{ dir_base }}/logs:/var/log/nginx/"
     - "{{ dir_base }}/config:/etc/nginx/conf.d"
       #    network_mode: host
     published_ports:
