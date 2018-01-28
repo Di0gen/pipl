@@ -23,9 +23,11 @@
     name: "{{ name_master }}"
     image: "{{ image }}"
     state: started
-    #log_driver: syslog
+    log_driver: syslog
     networks:
     - name: my_net
+    volumes:
+    - "{{ dir_base_master }}/logs:/var/log/"
     published_ports:
     - "{{ src_port_master }}:{{ dest_port}}"
     env:
@@ -43,9 +45,11 @@
     name: "{{ name_slave }}"
     image: "{{ image }}"
     state: started
-    #log_driver: syslog
+    log_driver: syslog
     networks:
     - name: my_net
+    volumes:
+    - "{{ dir_base_slave }}/logs:/var/log/"
     published_ports:
     - "{{ src_port_slave }}:{{ dest_port}}"
     env:
