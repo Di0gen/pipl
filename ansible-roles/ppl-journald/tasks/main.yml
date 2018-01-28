@@ -1,0 +1,57 @@
+---
+# tasks file for ppl-journald
+- name: Prepair directories for role
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - "{{ dir_base }}/journalbeat"
+
+- name: Create journald configuration
+  template:
+    src: journald.conf.j2
+    dest: /etc/systemd/journald.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify: Restart systemd-journald
+
+- name: Wipe persistent journal directory
+  file:
+    path: /var/log/journal
+    state: absent
+  when: journald_wipe_persistent
+
+- name: Install required pkgs
+  action: apt pkg={{item}} state=installed
+  run_once: true
+  with_items:
+    - libsystemd-dev
+    - golang-1.8
+
+- name: Clone the journalbeat
+  run_once: true
+  git:
+    repo: 'https://github.com/mheese/journalbeat'
+    dest: "{{ dir_base }}/journalbeat"
+    clone: yes
+
+- name: Build the journalbeat container
+  shell: make docker-build && make docker-tag
+  args:
+    chdir: "{{ dir_base }}/journalbeat"
+
+- name: Start journalbeat container
+  docker_container:
+    name: journalbeat
+    image: mheese/journalbeat:latest
+    env:
+      LOGSTASH_HOST: "{{ ansible_default_ipv4.address }}:5044"
+    volumes:
+      - "/var/tmp/journalbeat:/data"
+      - "/var/log/journal:/var/log/journal"
+      - "/run/log/journal:/run/log/journal"
+      - "/etc/machine-id:/etc/machine-id"

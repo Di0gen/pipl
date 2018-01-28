@@ -1,0 +1,5 @@
+---
+# defaults file for ppl-journald
+journald_config: { Storage: persistent, RuntimeMaxUse: 1G, ForwardToConsole: "yes", TTYPath: /dev/tty12,  ForwardToSyslog: "yes" }
+journald_wipe_persistent: false
+dir_base: /opt/journald

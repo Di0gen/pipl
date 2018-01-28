@@ -1,0 +1,11 @@
+---
+- name: Start playbook for journald installation 
+  hosts: localhost
+  roles:
+  - ppl-journald
+    #    journald_config:
+    #  Storage: volatile
+    #  RuntimeMaxUse: 1G
+    #   ForwardToConsole: "yes"
+    #  TTYPath: /dev/tty12
+    #journald_wipe_persistent: true

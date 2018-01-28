@@ -1,0 +1,6 @@
+---
+# handlers file for ppl-journald
+- name: Restart systemd-journald
+  service:
+    name: systemd-journald.service
+    state: restarted
