@@ -34,8 +34,8 @@
       MYSQL_REPLICATION_USER: "{{ my_repl_user }}"
       MYSQL_REPLICATION_PASSWORD: "{{ my_repl_password }}"
       MYSQL_DATABASE: "{{ db_name }}"
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass123
+      MYSQL_USER: "{{ my_user }}"
+      MYSQL_PASSWORD: "{{ my_pass }}"
 
 
 - name: Start mysql slave container.
@@ -67,19 +67,29 @@
   run_once: true
   with_items:
     - mysql-client
+    - python-mysqldb
+  
+
+- name: Collect mysql master dontainer IP address
+  run_once: true
+  command:  "docker inspect --format {% raw %}'{{ .NetworkSettings.IPAddress }}'{% endraw %} {{ name_master }}"
+  register: container_ip
+
 
 - name : Restore dump to test_db
   run_once: true
-  #command: "{% raw %} docker inspect --format '{{ .NetworkSettings.IPAddress }}' {{ name_master }}  {% endraw %}"
-  command:  "docker inspect --format {% raw %}'{{ .NetworkSettings.IPAddress }}'{% endraw %} {{ name_master }}"
-  register: container_ip
-- debug:
-  msg: "IP is {{ container_ip.stdout }}"
-    #  mysql_db:
-    # login_host: "{{ container_ip.stdout }}"
-    #name: "{{ db_name }}"
-    #login_user: user
-    #login_password: pass123
-    #state: import
-    #target: "{{ dir_base_master }}/tmp/employees_partitioned.sql"
+  shell: mysql -h "{{ container_ip.stdout }}" -u"{{ my_user }}" -p"{{ my_pass }}" "{{ db_name }}" < employees.sql
+  args:
+    chdir: "{{ dir_base_master }}/tmp"
+  # Using command: instead of mysql_db module, becase needed change directory of execution for loading all dumps
+
+  #command:  "docker inspect --format {% raw %}'{{ .NetworkSettings.IPAddress }}'{% endraw %} {{ name_master }}"
+  #register: container_ip  
+  #  mysql_db:
+  #  login_host: "{{ container_ip.stdout }}"
+  #  name: "{{ db_name }}"
+  #  login_user: "{{ my_user }}" 
+  #  login_password: "{{ my_pass }}"
+  #  state: import
+  #  target: "{{ dir_base_master }}/tmp/employees.sql"
 

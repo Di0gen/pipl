@@ -11,5 +11,6 @@ src_port_slave: 3307
 root_password: root123$
 my_repl_user: repl_user
 my_repl_password: repl_pass
-db_name: test_db
-
+db_name: employees
+my_user: user
+my_pass: pass123
