@@ -4,8 +4,8 @@ server {
     # added comment for testing container handler
 
 		location / {
-			auth_basic "Secret Zone";
-			auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+      auth_basic "Secret Zone";
+      auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
     	proxy_pass              http://{{ ansible_default_ipv4.address }}:5601;
     	proxy_set_header        Host $host;
     	proxy_set_header        Referer "";
