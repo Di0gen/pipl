@@ -18,6 +18,7 @@
     group: root
     owner: root
     mode: 0755
+  notify: Restart container
 
 - name: Start FileBeat.
   docker_container:

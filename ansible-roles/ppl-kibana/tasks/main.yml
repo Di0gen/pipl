@@ -19,8 +19,7 @@
     group: root
     owner: root
     mode: 0755
-    #  notify:
-    #- restart docker
+  notify: Restart container
 
 - name: Start Kibana container.
   docker_container:

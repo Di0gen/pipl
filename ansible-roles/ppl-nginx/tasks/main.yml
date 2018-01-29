@@ -29,6 +29,7 @@
     group: root
     owner: root
     mode: 0755
+  notify: Restart container
 
 
 - name: Start nginx container.
