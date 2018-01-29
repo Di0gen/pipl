@@ -1,0 +1,54 @@
+---
+- name: Create config and logs difrectories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - "{{ dir_base }}/logs"
+  - "{{ dir_base }}/config/conf.d"
+  - "{{ dir_base }}/www"
+
+- name: Install latest passlib with pip
+  pip: name=passlib
+
+# Add a users to a .htpasswd file 
+- htpasswd:
+    path: "{{ dir_base }}/config/conf.d/.htpasswd"
+    name: "{{ item.key }}"
+    password: "{{ item.value.pass }}"
+    crypt_scheme: md5_crypt
+  with_dict: "{{ users }}"
+
+
+- name: Configure nginx for access to Kibana
+  template:
+    src: kibana.conf.j2
+    dest: "{{ dir_base }}/config/conf.d/kibana.conf"
+    group: root
+    owner: root
+    mode: 0755
+  notify: Restart container
+
+
+- name: Start nginx container.
+  docker_container:
+    name: "{{ name }}"
+    image: "{{ image }}"
+    log_driver: syslog
+    state: started
+    restart_policy: always
+    volumes:
+    - "{{ dir_base }}/logs:/var/log/nginx/"
+    - "{{ dir_base }}/config/conf.d:/etc/nginx/conf.d/"
+    - "{{ dir_base }}/www:/var/www"
+      #    network_mode: host
+    published_ports:
+    - "{{ src_port }}:{{ dest_port}}"
+    - "{{ src_sport }}:{{ dest_sport}}"
+    ports:
+    - "{{ src_port }}:{{ dest_port }}"
+    - "{{ src_sport }}:{{ dest_sport }}"
+     

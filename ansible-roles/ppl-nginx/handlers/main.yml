@@ -6,3 +6,7 @@
     restart: yes
     state: started
 
+# Reload nginx in container
+- name: Reload nginx
+  shell: |
+    docker exec -i {{ name }} bash -c 'kill -HUP 1'

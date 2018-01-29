@@ -1,0 +1,54 @@
+---
+
+- name: Install required pkgs for LetsEncrypt
+  #shell: docker exec -i "{{ name }}" ls
+  shell: |
+    docker exec {{ name }}  /usr/bin/apt-get update 
+    docker exec {{ name }} /usr/bin/apt-get install -y {{item}} 
+    exit 0
+  run_once: true
+  with_items:
+    - python-simplejson
+    - letsencrypt
+
+- name: create domain directory
+  file: name={{ dir_base }}/www/{{ domain_name }} state=directory
+
+- name: create cache directory
+  file: name={{ dir_base }}/www/cache state=directory
+
+- name: Install nginx site for letsencrypt requests
+  template:
+    src: nginx-http.conf.j2
+    dest: "{{ dir_base }}/config/conf.d/nginx-http.conf"
+  notify:
+    Reload nginx
+    
+- name: Restart nginx to activate letsencrypt site
+  docker_container:
+    name: "{{ name }}"
+    state: started
+    restart: yes
+
+- name: Create letsencrypt certificate
+  shell: |
+    docker exec -i {{ name }} /usr/bin/letsencrypt  certonly -n --webroot -w /var/www/{{ domain_name }} -m {{ letsencrypt_email }} --agree-tos -d {{ domain_name }}
+
+- name: Generate dhparams
+  shell: |
+    docker exec -i {{ name }} bash -c ' [ ! -f /etc/nginx/dhparams.pem ] && openssl dhparam -out /etc/nginx/dhparams.pem 2048 || exit 0 '
+
+- name: Install nginx site for specified site
+  template:
+    src: kibana-ssl.conf.j2
+    dest: "{{ dir_base }}/config/conf.d/kibana-ssl.conf"
+  notify:
+    Reload nginx
+    
+#- name: Reload nginx to activate specified site
+#  docker_container:
+#    name: "{{ name }}"
+#    state: started
+#    restart: yes
+
+
