@@ -9,6 +9,7 @@
   with_items:
   - "{{ dir_base }}/logs"
   - "{{ dir_base }}/config"
+  - "{{ dir_base }}/www"
 
 - name: Install latest passlib with pip
   pip: name=passlib
@@ -42,6 +43,7 @@
     volumes:
     - "{{ dir_base }}/logs:/var/log/nginx/"
     - "{{ dir_base }}/config:/etc/nginx/conf.d"
+    - "{{ dir_base }}/www:/var/www"
       #    network_mode: host
     published_ports:
     - "{{ src_port }}:{{ dest_port}}"
