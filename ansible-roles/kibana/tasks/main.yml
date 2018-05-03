@@ -26,7 +26,6 @@
     name: "{{ name }}"
     image: "{{ image }}"
     state: started
-    log_driver: syslog
     volumes:
     - "{{ dir_base }}/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
     published_ports:

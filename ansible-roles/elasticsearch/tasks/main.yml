@@ -16,7 +16,6 @@
   docker_container:
     name: "{{ name }}"
     image: "{{ image }}"
-    log_driver: syslog
     state: started
     published_ports:
     - "{{ src_port1 }}:{{ dest_port1 }}"

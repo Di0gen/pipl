@@ -1,7 +1,7 @@
 ---
 # defaults file for ppl-logstash
 dir_base: "/opt/logstash"
-image: docker.elastic.co/logstash/logstash:6.1.2
+image: logstash:latest
 name: logstash
 src_port1: 5044
 src_port2: 9600
